@@ -45,7 +45,7 @@ class SistemaBancario:
              print("TE HAS LOGUEADO CON EXITO!")
              print(f"Bienvenido {filtrar_usuario[0].nombre}")
              session = filtrar_usuario[0].cedula
-             print(f"Dato en session luego de iniciar sesion {session}")
+             print(f"Menu bancario:")
              self.menu_usuario(session)
          
         elif filtrar_usuario[0].nombre_usuario != nombre_de_usuario and filtrar_usuario[0].clave_usuario != clave_de_usuario:
@@ -53,8 +53,6 @@ class SistemaBancario:
     
      
     def crear_cuenta(self, cedula):
-        print(f"Usuarios de arriba todos: {self.usuarios}")
-        print(f"Usuario filtrado solo: {cedula}")
         numero_de_cuenta = input("Ingresa el numero de tu cuenta: ")
 
         while not numero_de_cuenta.isdigit() or len(numero_de_cuenta) != 12:
@@ -77,12 +75,12 @@ class SistemaBancario:
             if usuario[1].cedula == cedula:
                 self.usuarios[usuario[0]].cuentas_usuarios = [numero_cuenta, saldo_inicial]
                 print("Cuenta creada con exito!")
-                print(self.usuarios[1].cuentas_usuarios)
                 return self.menu_usuario(usuario[1].cedula)
     
     def depositar(self, cedula):
         for usuario in enumerate(self.usuarios):
             if usuario[1].cedula == cedula:
+                usuario_indice = usuario[0]
                 cuentas = usuario[1].cuentas_usuarios
                 
                 if cuentas == []:
@@ -97,13 +95,14 @@ class SistemaBancario:
             
         deposito = int(deposito)
 
-        self.usuarios[usuario[0]].cuentas_usuarios[1] += deposito
-        print(f"Saldo actual despues del deposito: {self.usuarios[usuario[0]].cuentas_usuarios[1]}")
+        self.usuarios[usuario_indice].cuentas_usuarios[1] += deposito
+        print(f"Saldo actual despues del deposito: {self.usuarios[usuario_indice].cuentas_usuarios[1]}")
         return self.menu_usuario(cedula)
         
     def retirar(self, cedula):
         for usuario in enumerate(self.usuarios):
             if usuario[1].cedula == cedula:
+                usuario_indice = usuario[0]
                 cuentas = usuario[1].cuentas_usuarios
                 
                 if cuentas == []:
@@ -111,15 +110,19 @@ class SistemaBancario:
                  self.menu_usuario(usuario)
         
         print("Retirar dinero en tu cuenta")
-        deposito = input("Ingresa la cantidad a retirar: ")
+        retiro = input("Ingresa la cantidad a retirar: ")
         
-        while not deposito.isdigit():
-            deposito = input("Dato invalido, ingresa la cantidad a depositar: ")
+        while not retiro.isdigit():
+            retiro = input("Dato invalido, ingresa la cantidad a depositar: ")
             
-        deposito = int(deposito)
+        retiro = int(retiro)
+        
+        if self.usuarios[usuario_indice].cuentas_usuarios[1] < retiro:
+            print("Saldo insuficiente para retiro")
+            return self.menu_usuario(cedula)
 
-        self.usuarios[usuario[0]].cuentas_usuarios[1] -= deposito
-        print(f"Saldo actual despues del retiro: {self.usuarios[usuario[0]].cuentas_usuarios[1]}")
+        self.usuarios[usuario_indice].cuentas_usuarios[1] -= retiro
+        print(f"Saldo actual despues del retiro: {self.usuarios[usuario_indice].cuentas_usuarios[1]}")
         return self.menu_usuario(cedula)
         
     def transferir(self, cedula):
@@ -151,7 +154,7 @@ class SistemaBancario:
                  numero_de_cuenta = input("Ingresa el numero de cuenta exacto, esta arriba: ")
             
                 while numero_de_cuenta != destinatario[1].cuentas_usuarios[0]:
-                 monto_transferencia = input("Ingresa el numero de cuenta exacto para la transferencia: ")
+                 numero_de_cuenta = input("Ingresa el numero de cuenta exacto para la transferencia: ")
                 
                 monto_transferencia = input("Ingresa el monto de transferencia: ")
             
@@ -166,7 +169,7 @@ class SistemaBancario:
                  print(f"Transferencia con exito, Saldo emisor: {self.usuarios[cuenta_emisor_indice].cuentas_usuarios[1]} | Saldo receptor: {self.usuarios[cuenta_destinatario_indice].cuentas_usuarios[1]}")
                 else: print("Saldo insuficiente")
         
-        #else: print ("Destinatario no encontrado")
+        
         return self.menu_usuario(cedula)
     
     def cerrar_session(self):
@@ -191,10 +194,10 @@ class SistemaBancario:
             for usuario in enumerate(self.usuarios):
                 if usuario[1].cedula == session:
                     if usuario[1].cuentas_usuarios != []:
-                        print("Ya tienes una cuenta creada, no hay plastico")
+                        print("Ya tienes una cuenta creada, no puedes tener mas de 1")
+                        self.menu_usuario(session)
                     else:
-                        print(f"Cuenta vacia: {usuario[1].cuentas_usuarios}")
-                        print("EN BREVE CREARAS TU CUENTA BANCARIA")
+                        print("EL NUMERO DE CUENTA DEBE TENER 12 DIGITOS")
                         self.crear_cuenta(session)
         elif opcion_menu == 2:
             print("DEPOSITAR")
